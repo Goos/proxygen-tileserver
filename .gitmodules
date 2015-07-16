@@ -1,0 +1,9 @@
+[submodule "deps/proxygen"]
+	path = deps/proxygen
+	url = https://github.com/facebook/proxygen.git
+[submodule "deps/mapnik"]
+	path = deps/mapnik
+	url = https://github.com/mapnik/mapnik.git
+[submodule "deps/redisclient"]
+	path = deps/redisclient
+	url = https://github.com/nekipelov/redisclient
