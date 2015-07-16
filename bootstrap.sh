@@ -6,8 +6,11 @@ apt-get update
 apt-get install -y git
 apt-get install -y unzip
 
-if [ ! -f "/usr/bin/clang++" ]; then
+if [ ! -f "/usr/bin/clang++-3.5" ]; then
   apt-get install -y clang-3.5 lldb-3.6
+  if [ -f "/usr/bin/clang++" ]; then
+    mv /usr/bin/clang++ /usr/bin/clang++_old
+  fi
   ln -s /usr/bin/clang++-3.5 /usr/bin/clang++
   ln -s /usr/bin/lldb-3.6 /usr/bin/lldb
 fi
