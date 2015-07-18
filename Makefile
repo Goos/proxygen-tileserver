@@ -1,8 +1,8 @@
 CXX				= clang++
-CXXFLAGS	:= -g -c -std=c++11
+CXXFLAGS	:= $(if $(DEBUG), -g -fstandalone-debug) -c -std=c++11
 
 DEPSDIR			= deps
-SRCDIR			= src
+SRCDIR			= tileserver
 TARGETDIR		= bin
 TARGETNAME 	= tileserver
 BUILDDIR		= build
@@ -37,11 +37,13 @@ $(TARGETDIR)/$(TARGETNAME): $(OBJECTS)
 
 -include $(HDEPS)
 
-$(INTERMEDIATESDIR)/%.o: $(SRCDIR)/%.cpp $(TARGETHEADERS)
+$(INTERMEDIATESDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo "Compiling $<"
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(INCS) -MM -MT $@ -MF $(patsubst %.o,%.d,$@) $<
 	@$(CXX) $(CXXFLAGS) $(INCS) -c -o $@ $<
+
+$(OBJECTS): | $(TARGETHEADERS)
 
 $(TARGETHEADERDIR)/%.h: $(SRCDIR)/%.h
 	@mkdir -p $(@D)

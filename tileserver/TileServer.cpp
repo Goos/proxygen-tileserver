@@ -1,10 +1,11 @@
+#include <tileserver/lib/routing/Router.h>
+#include <tileserver/handlers/TileRequestHandlerFactory.h>
 #include <gflags/gflags.h>
-#include <folly/Memory.h>
 #include <folly/Portability.h>
 #include <folly/io/async/EventBaseManager.h>
 #include <proxygen/httpserver/HTTPServer.h>
-#include <tileserver/lib/routing/Router.h>
-#include <tileserver/handlers/TileRequestHandlerFactory.h>
+#include <vector>
+#include <chrono>
 
 using namespace tileserver;
 using namespace proxygen;
@@ -35,9 +36,11 @@ int main(int argc, char* argv[]) {
     CHECK(FLAGS_threads > 0);
   }
 
-  std::vector<Route*> routes = {
-    new Route("results/{x}/{y}/{z}", HTTPMethodGET, new TileRequestHandlerFactory()),
-    new Route("locations/{x}/{y}/{z}", HTTPMethodGET, new TileRequestHandlerFactory())
+  auto tileHandlerFactory = std::make_shared<TileRequestHandlerFactory>();
+  std::vector<std::shared_ptr<Route>> routes = {
+    std::make_shared<Route>("results/{x:\\d+}/{y:\\d+}/{z:\\d+}@{scale}x.{filetype}", HTTPMethodGET, tileHandlerFactory),
+    std::make_shared<Route>("results/{x:\\d+}/{y:\\d+}/{z:\\d+}.{filetype}", HTTPMethodGET, tileHandlerFactory),
+    std::make_shared<Route>("locations/{x}/{y}/{z}", HTTPMethodGET, tileHandlerFactory)
   };
 
   HTTPServerOptions options;

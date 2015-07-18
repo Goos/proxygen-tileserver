@@ -1,49 +1,18 @@
 #include <tileserver/lib/routing/Router.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
-#include <boost/regex.hpp>
 
 namespace tileserver {
 
 using namespace proxygen;
 
-int methodEnumToInt(boost::optional<proxygen::HTTPMethod> methodEnum) {
-  if (!methodEnum) { return 0; }
-  switch(*methodEnum) {
-  case HTTPMethod::GET: return HTTPMethodGET;
-  case HTTPMethod::POST: return HTTPMethodPOST;
-  case HTTPMethod::PUT: return HTTPMethodPUT;
-  case HTTPMethod::DELETE: return HTTPMethodDELETE;
-  case HTTPMethod::HEAD: return HTTPMethodHEAD;
-  case HTTPMethod::OPTIONS: return HTTPMethodOPTIONS;
-  default: return 0;
-  }
-}
-
-Route::Route(std::string path, unsigned int method, RoutableHandlerFactory* handlerFactory):
-  path(path),
-  method(method),
-  handlerFactory(handlerFactory)
-{
-  boost::regex expression("\\{(.*?)\\}");
-  boost::sregex_iterator next(path.begin(), path.end(), expression);
-  boost::sregex_iterator end;
-  std::for_each(next, end, [this](const boost::match_results<std::string::const_iterator>& match) {
-    variableKeys.push_back(match[1].str());
-  });
-}
-
-Route::~Route() {
-  //delete handlerFactory;
-}
-
-Router::Router(std::vector<Route*> routes):
+Router::Router(std::vector<std::shared_ptr<Route>> routes):
   routeTree_(routes.size()),
   routes_(routes)
 { 
   for (auto iterator = routes.begin(); iterator != routes.end(); iterator++) {
     auto route = *iterator;   
     auto path = route->path.c_str();
-    void *data = route;
+    void* data = route.get();
     routeTree_.insert_route(route->method, path, data);
   }
 
@@ -51,7 +20,9 @@ Router::Router(std::vector<Route*> routes):
   int err = routeTree_.compile(&errStr);
   if (err != 0) {
     std::cout << "Error compiling route tree: " << errStr << std::endl;
+    routeTree_.dump(0);
     delete errStr;
+    abort();
   }
 }
 
@@ -74,8 +45,8 @@ void Router::onServerStop() noexcept {
 RequestHandler* Router::onRequest(RequestHandler* handler, HTTPMessage* message) noexcept {
   // Getting the path and clipping the leading slash.
   auto path = message->getURL();
-  auto cPath = path.substr(1, path.size() - 1).c_str();
-  r3::MatchEntry entry(cPath);
+  auto clippedPath = path.substr(1, path.size() - 1);
+  r3::MatchEntry entry(clippedPath.c_str());
   auto method = message->getMethod();
   if (method) {
     auto rawMethod = methodEnumToInt(method);

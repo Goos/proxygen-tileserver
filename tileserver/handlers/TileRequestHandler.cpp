@@ -3,17 +3,20 @@
 #include <proxygen/httpserver/ResponseBuilder.h>
 
 namespace tileserver {
+
 using namespace proxygen;
 
-TileRequestHandler::TileRequestHandler(std::map<std::string, std::string> args):
-  args_(args)  
+TileRequestHandler::TileRequestHandler(
+      mapnik::box2d<double> bbox,
+      folly::wangle::CPUThreadPoolExecutor* renderingPool,
+      folly::wangle::IOThreadPoolExecutor* ioPool):
+  bbox_(bbox),
+  renderingPool_(renderingPool),
+  ioPool_(ioPool)
 {
 }
 
 void TileRequestHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
-  for (const auto& kv : args_) {
-    std::cout << "{" << kv.first << ": " << kv.second << "}" << std::endl;
-  }
   ResponseBuilder(downstream_)
     .status(200, "OK")
     .sendWithEOM();
