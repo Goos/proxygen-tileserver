@@ -20,9 +20,9 @@ class TileRequestHandlerFactory : public RoutableHandlerFactory {
     void onServerStop() noexcept override;
 
     proxygen::RequestHandler* onRequest(proxygen::RequestHandler* handler, proxygen::HTTPMessage* message) noexcept override;
-    proxygen::RequestHandler* onRoutedRequest(proxygen::RequestHandler* defaultHandler, proxygen::HTTPMessage* message, std::map<std::string, std::string> args) noexcept;
+    proxygen::RequestHandler* onRoutedRequest(proxygen::RequestHandler* defaultHandler, proxygen::HTTPMessage* message, std::map<std::string, std::string> args) noexcept override;
   
-  private:
+  protected:
     folly::ThreadLocalPtr<SphericalMercator> mercator_;
     folly::ThreadLocalPtr<mapnik::Map> map_;
     folly::wangle::CPUThreadPoolExecutor renderingPool_;

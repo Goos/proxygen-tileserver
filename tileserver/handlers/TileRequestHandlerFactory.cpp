@@ -1,4 +1,5 @@
 #include <tileserver/handlers/TileRequestHandlerFactory.h>
+#include <tileserver/handlers/TileRequest.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 #include <mapnik/box2d.hpp>
 #include <thread>
@@ -31,6 +32,8 @@ void TileRequestHandlerFactory::onServerStart() noexcept {
 }
 
 void TileRequestHandlerFactory::onServerStop() noexcept {
+  mercator_.reset();
+  map_.reset();
   size_t cpuThreadCount(renderingPool_.numThreads());
   size_t ioThreadCount(ioPool_.numThreads());
   if (cpuThreadCount >= 2) { cpuThreadCount -= 2; }
@@ -54,6 +57,7 @@ RequestHandler* TileRequestHandlerFactory::onRoutedRequest(RequestHandler* defau
   double zoom = atof(zoomStr);
   
   auto bbox = mercator_.get()->bbox(x, y, zoom, Projection::EPSG3857);
+  auto request = TileRequest(bbox);
   
   return new TileRequestHandler(bbox, &renderingPool_, &ioPool_);
 }
