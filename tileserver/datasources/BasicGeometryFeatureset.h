@@ -4,7 +4,7 @@
 
 namespace tileserver {
 
-class BasicGeometryFeatureset: mapnik::Featureset {
+class BasicGeometryFeatureset: public mapnik::Featureset {
   public:
     BasicGeometryFeatureset(std::vector<mapnik::feature_ptr> const& features);
     ~BasicGeometryFeatureset();

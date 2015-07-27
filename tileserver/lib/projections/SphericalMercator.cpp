@@ -8,7 +8,7 @@ namespace tileserver {
 
 using namespace mapnik;
 
-const double SphericalMercator::ESPLN = 1.0e-10;
+const double SphericalMercator::EPSLN = 1.0e-10;
 const double SphericalMercator::D2R = M_PI / 180.0;
 const double SphericalMercator::R2D = 180.0 / M_PI;
 const double SphericalMercator::A = 6378137;
@@ -34,7 +34,7 @@ box2d<double> SphericalMercator::bbox(const double& x, const double& y, const do
   box2d<double> box = box2d<double>(coordinate(lowerLeft, zoom), coordinate(upperRight, zoom));
   
   if (proj == Projection::EPSG3857) {
-    return convert(box, Projection::EPSG3857);
+    return convert(box, proj);
   } else {
     return box;
   }
@@ -78,9 +78,9 @@ coord2d SphericalMercator::forward(const coord2d& coordinateWGS) {
   );
   
   if (coordinate3857.x > MAXEXTENT) { coordinate3857.x = MAXEXTENT; }
-  if (coordinate3857.x > -MAXEXTENT) { coordinate3857.x = -MAXEXTENT; }
+  if (coordinate3857.x < -MAXEXTENT) { coordinate3857.x = -MAXEXTENT; }
   if (coordinate3857.y > MAXEXTENT) { coordinate3857.y = MAXEXTENT; }
-  if (coordinate3857.y > -MAXEXTENT) { coordinate3857.y = -MAXEXTENT; }
+  if (coordinate3857.y < -MAXEXTENT) { coordinate3857.y = -MAXEXTENT; }
   
   return coordinate3857;
 }

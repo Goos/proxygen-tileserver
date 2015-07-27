@@ -35,7 +35,7 @@ namespace tileserver {
 class BasicGeometryDatasource: public mapnik::datasource {
   public:
     typedef mapnik::box2d<double> BoxType;
-    typedef std::pair<BoxType, std::pair<std::size_t, std::size_t>> ItemType;
+    typedef std::pair<BoxType, std::size_t> ItemType;
     typedef boost::geometry::index::rtree<ItemType, GeometryIndexLinear<16, 4>> SpatialIndexType;
 
     BasicGeometryDatasource(mapnik::parameters const& parameters);
@@ -45,12 +45,12 @@ class BasicGeometryDatasource: public mapnik::datasource {
 
     mapnik::datasource::datasource_t type() const;
     static const char* name();
-  
-    mapnik::featureset_ptr features(mapnik::query const& q) const;
-    mapnik::featureset_ptr features_at_point(mapnik::coord2d const& pt, double tol = 0) const;
-    mapnik::box2d<double> envelope() const;
     boost::optional<mapnik::datasource_geometry_t> get_geometry_type() const;
     mapnik::layer_descriptor get_descriptor() const;
+  
+    mapnik::box2d<double> envelope() const;
+    mapnik::featureset_ptr features(mapnik::query const& q) const;
+    mapnik::featureset_ptr features_at_point(mapnik::coord2d const& pt, double tol = 0) const;
   
   protected:
     static const std::string name_;

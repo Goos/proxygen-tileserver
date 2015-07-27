@@ -1,6 +1,9 @@
 #include <tileserver/handlers/TileRequestHandler.h>
+#include <tileserver/datasources/BasicGeometryDatasource.h>
+  
 #include <boost/algorithm/string/join.hpp>
 #include <proxygen/httpserver/ResponseBuilder.h>
+#include <mapnik/datasource_cache.hpp>
 
 namespace tileserver {
 
@@ -17,6 +20,12 @@ TileRequestHandler::TileRequestHandler(
 }
 
 void TileRequestHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
+  mapnik::parameters params;
+  params["type"] = "BasicGeometry";
+  auto datasource = std::make_shared<BasicGeometryDatasource>(params);
+  auto center = bbox_.center();
+  std::cout << "[" << bbox_.minx() << ", " << bbox_.miny() << ", " << bbox_.maxx() << ", " << bbox_.maxy() << "]" << std::endl;
+  
   ResponseBuilder(downstream_)
     .status(200, "OK")
     .sendWithEOM();

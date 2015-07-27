@@ -19,7 +19,7 @@ using Protocol = HTTPServer::Protocol;
 DEFINE_int32(http_port, 11000, "Port used to listen with HTTP protocol.");
 DEFINE_int32(spdy_port, 11001, "Port used to listen with SPDY protocol.");
 DEFINE_string(ip, "localhost", "IP/hostname to bind to.");
-DEFINE_int32(threads, 0, "Number of threads to listen on. Numbers <= 0 will use the number of cores in the current machine.");
+DEFINE_int32(threads, 2, "Number of threads to listen on. Numbers <= 0 will use the number of cores in the current machine.");
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);

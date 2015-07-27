@@ -1,11 +1,14 @@
-CXX				= clang++
-CXXFLAGS	:= $(if $(DEBUG), -g -fstandalone-debug) -c -std=c++11
+CC        = gcc-5
+CXX				= g++-5
+
+# If using clang, add "-fstandalone-debug" to the debug flags.
+CXXFLAGS	:= $(if $(DEBUG), -g) -c -std=c++11
 
 DEPSDIR			= deps
 SRCDIR			= tileserver
-TARGETDIR		= bin
 TARGETNAME 	= tileserver
 BUILDDIR		= build
+TARGETDIR		= $(BUILDDIR)/bin
 INTERMEDIATESDIR = $(BUILDDIR)/intermediates
 
 LOCALINCDIR 		= $(BUILDDIR)/include
@@ -31,9 +34,10 @@ checkouts:
 	@git submodule update --init
 
 $(TARGETDIR)/$(TARGETNAME): $(OBJECTS)
+	@mkdir -p $(TARGETDIR)
 	@echo "Linking $(TARGETNAME)"
 	@echo "$(LDFLAGS)"
-	@$(CXX) $(LDFLAGS) $(OBJECTS) -o $@ 
+	@$(CXX) $(OBJECTS) $(LDFLAGS) -o $@ 
 
 -include $(HDEPS)
 

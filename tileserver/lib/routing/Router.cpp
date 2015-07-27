@@ -8,9 +8,10 @@ using namespace proxygen;
 Router::Router(std::vector<std::shared_ptr<Route>> routes):
   routeTree_(routes.size()),
   routes_(routes)
-{ 
+{
   for (auto iterator = routes.begin(); iterator != routes.end(); iterator++) {
-    auto route = *iterator;   
+    auto route = *iterator;
+    handlerFactories_.insert(route->handlerFactory);
     auto path = route->path.c_str();
     void* data = route.get();
     routeTree_.insert_route(route->method, path, data);
@@ -28,17 +29,15 @@ Router::Router(std::vector<std::shared_ptr<Route>> routes):
 
 void Router::onServerStart() noexcept {
   std::cout << "Starting router." << std::endl;
-  for (auto iterator = routes_.begin(); iterator != routes_.end(); iterator++) {
-    auto route = *iterator;
-    route->handlerFactory->onServerStart();
+  for (auto handler : handlerFactories_) {
+    handler->onServerStart();
   }
 }
 
 void Router::onServerStop() noexcept {
   std::cout << "Stopping router." << std::endl;
-  for (auto iterator = routes_.begin(); iterator != routes_.end(); iterator++) {
-    auto route = *iterator;
-    route->handlerFactory->onServerStop();
+  for (auto handler : handlerFactories_) {
+    handler->onServerStop();
   }
 }
 
@@ -57,16 +56,16 @@ RequestHandler* Router::onRequest(RequestHandler* handler, HTTPMessage* message)
   if (matchingRoute) {
     auto route = static_cast<Route*>(matchingRoute.data());
 
-    std::map<std::string, std::string> args;
+    std::map<std::string, std::string> routingArgs;
 
     auto varKeys = route->variableKeys;
-    auto cArgs = entry.get()->vars;
-    for (int i = 0; i != cArgs->len; ++i) {
+    auto argList = entry.get()->vars;
+    for (int i = 0; i != argList->len; ++i) {
       auto key = varKeys[i];
-      auto arg = std::string(cArgs->tokens[i]);
-      args[key] = arg;
+      auto arg = std::string(argList->tokens[i]);
+      routingArgs[key] = arg;
     }
-    return route->handlerFactory->onRoutedRequest(handler, message, args);
+    return route->handlerFactory->onRoutedRequest(handler, message, routingArgs);
   } else {
     return new MissingRouteHandler(message);
   }

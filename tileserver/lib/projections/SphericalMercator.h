@@ -15,7 +15,7 @@ class SphericalMercator {
   
     SphericalMercator(double tileSize);
   
-    mapnik::box2d<double> bbox(const double& x, const double& y, const double& zoom, const Projection& proj);
+    mapnik::box2d<double> bbox(const double& x, const double& y, const double& zoom, const Projection& proj = Projection::WGS84);
   
     mapnik::coord2d coordinate(const mapnik::coord2d& screenPoint, const double& zoom);
     
@@ -35,7 +35,7 @@ class SphericalMercator {
     std::vector<double> zc_;
     std::vector<double> Ac_;
 
-    static const double ESPLN;
+    static const double EPSLN;
     static const double D2R;
     static const double R2D;
     static const double A;

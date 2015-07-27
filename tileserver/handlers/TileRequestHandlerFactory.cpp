@@ -11,8 +11,8 @@ using namespace proxygen;
 using namespace folly::wangle;
 
 TileRequestHandlerFactory::TileRequestHandlerFactory():
-  renderingPool_(0),
-  ioPool_(0)
+  renderingPool_(sysconf(_SC_NPROCESSORS_ONLN) * 2),
+  ioPool_(sysconf(_SC_NPROCESSORS_ONLN))
 {
 }
 
@@ -24,22 +24,11 @@ TileRequestHandlerFactory::~TileRequestHandlerFactory() {
 void TileRequestHandlerFactory::onServerStart() noexcept {
   mercator_.reset(new SphericalMercator(256));
   map_.reset(new mapnik::Map(256, 256, mercator_.get()->proj4_));
-  
-  size_t cpuThreadCount(renderingPool_.numThreads() + 2);
-  size_t ioThreadCount(ioPool_.numThreads() + 1);
-  renderingPool_.setNumThreads(cpuThreadCount);
-  ioPool_.setNumThreads(ioThreadCount);
 }
 
 void TileRequestHandlerFactory::onServerStop() noexcept {
   mercator_.reset();
   map_.reset();
-  size_t cpuThreadCount(renderingPool_.numThreads());
-  size_t ioThreadCount(ioPool_.numThreads());
-  if (cpuThreadCount >= 2) { cpuThreadCount -= 2; }
-  if (ioThreadCount >= 1) { cpuThreadCount -= 1; }
-  renderingPool_.setNumThreads(cpuThreadCount);
-  ioPool_.setNumThreads(ioThreadCount);
 }
 
 

@@ -20,6 +20,7 @@ class Router : public proxygen::RequestHandlerFactory {
   private:
     r3::Tree routeTree_;
     std::vector<std::shared_ptr<Route>> routes_;
+    std::unordered_set<std::shared_ptr<RoutableHandlerFactory>> handlerFactories_;
 };
 
 class MissingRouteHandler : public proxygen::RequestHandler {

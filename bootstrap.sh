@@ -1,36 +1,25 @@
 #!/usr/bin/env bash
 
-CLANG_VERSION=3.6
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 
 apt-get -y update
 apt-get -y upgrade
 
-apt-get install -y git unzip
-
-if [ ! -f "/usr/bin/clang++${CLANG_VERSION}" ]; then
-  apt-get install -y clang-${CLANG_VERSION} lldb-${CLANG_VERSION}
-  if [ -f "/usr/bin/clang++" ]; then
-    mv /usr/bin/clang++ /usr/bin/clang++_old
-    mv /usr/bin/clang /usr/bin/clang_old
-  fi
-  ln -s /usr/bin/clang++-${CLANG_VERSION} /usr/bin/clang++
-  ln -s /usr/bin/clang-${CLANG_VERSION} /usr/bin/clang
-  ln -s /usr/bin/lldb-${CLANG_VERSION} /usr/bin/lldb
-fi
+apt-get install -y git unzip g++-5
 
 if [ ! -d "/var/www/deps" ]; then 
   mkdir /var/www/deps
 fi
 
 # Mapnik
-# - building boost 1.57.0 from source as apt only has 1.54.0
-if [ ! -d "/usr/local/boost_1_57_0" ]; then
+# - building boost 1.58.0 from source as apt only has 1.54.0
+if [ ! -d "/usr/local/boost_1_58_0" ]; then
   apt-get install -y build-essential g++ python-dev autotools-dev libicu-dev build-essential libbz2-dev libboost-all-dev
 
-  wget "http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.bz2/download" -O /usr/local/boost_1_57_0.tar.bz2
+  wget "http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.bz2/download" -O /usr/local/boost_1_58_0.tar.bz2
   cd /usr/local
-  tar --bzip -xf boost_1_57_0.tar.bz2
-  cd /usr/local/boost_1_57_0
+  tar --bzip -xf boost_1_58_0.tar.bz2
+  cd /usr/local/boost_1_58_0
   ./bootstrap.sh
   ./b2 install
 fi
@@ -64,14 +53,14 @@ if [ ! -f "/usr/local/lib/libharfbuzz.la" ]; then
   sudo ldconfig
 fi
 
-# - building mapnik from source with clang.
+# - building mapnik from source 
 if [ ! -f "/usr/local/lib/libmapnik.a" ]; then
   cd /var/www/deps
   wget "https://mapnik.s3.amazonaws.com/dist/v3.0.0/mapnik-v3.0.0.tar.bz2" -O /var/www/deps/mapnik-v3_0_0.tar.bz2
   mkdir mapnik
   tar --bzip -xf mapnik-v3_0_0.tar.bz2 -C mapnik --strip-components=1
   cd mapnik
-  ./configure CXX=clang++ CC=clang
+  ./configure 
   make && sudo make install
 fi
 
