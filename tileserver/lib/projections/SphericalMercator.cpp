@@ -29,9 +29,13 @@ SphericalMercator::SphericalMercator(double tileSize):
 }
 
 box2d<double> SphericalMercator::bbox(const double& x, const double& y, const double& zoom, const Projection& proj) {
-  coord2d lowerLeft = coord2d(x * tileSize_, (y + 1) * tileSize_);
-  coord2d upperRight = coord2d((x + 1) * tileSize_, y * tileSize_);
-  box2d<double> box = box2d<double>(coordinate(lowerLeft, zoom), coordinate(upperRight, zoom));
+  coord2d lowerLeft(x * tileSize_, (y + 1) * tileSize_);
+  coord2d upperRight((x + 1) * tileSize_, y * tileSize_);
+  
+  box2d<double> box(
+    coordinate(lowerLeft, zoom),
+    coordinate(upperRight, zoom)
+  );
   
   if (proj == Projection::EPSG3857) {
     return convert(box, proj);
@@ -41,17 +45,17 @@ box2d<double> SphericalMercator::bbox(const double& x, const double& y, const do
 }
 
 coord2d SphericalMercator::coordinate(const coord2d& screenPoint, const double& zoom) {
-  double g = (screenPoint.y - zc_[zoom]) / (-Cc_[zoom]);
-  double lon = (screenPoint.x - zc_[zoom]) / Bc_[zoom];
-  double lat = R2D * (2 * atan(exp(g)) - 0.5 * M_PI);
+  double g((screenPoint.y - zc_[zoom]) / (-Cc_[zoom]));
+  double lon((screenPoint.x - zc_[zoom]) / Bc_[zoom]);
+  double lat(R2D * (2 * atan(exp(g)) - 0.5 * M_PI));
   return coord2d(lon, lat);
 }
 
 coord2d SphericalMercator::screenPoint(const coord2d& coordinate, const double& zoom) {
   double d = zc_[zoom];
-  double f = std::min(std::max(sin(D2R * coordinate.y), -0.9999), 0.9999);
-  double x = round(d + coordinate.x * Bc_[zoom]);
-  double y = round(d + 0.5 * log((1 + f) / (1 - f)) * (-Cc_[zoom]));
+  double f(std::min(std::max(sin(D2R * coordinate.y), -0.9999), 0.9999));
+  double x(round(d + coordinate.x * Bc_[zoom]));
+  double y(round(d + 0.5 * log((1 + f) / (1 - f)) * (-Cc_[zoom])));
   if (x > Ac_[zoom]) {
     x = Ac_[zoom];
   }
@@ -62,8 +66,8 @@ coord2d SphericalMercator::screenPoint(const coord2d& coordinate, const double& 
 }
 
 box2d<double> SphericalMercator::convert(const box2d<double>& bbox, const Projection& projection) {
-  coord2d lowerLeft = coord2d(bbox.minx(), bbox.miny());
-  coord2d upperRight = coord2d(bbox.maxx(), bbox.maxy());
+  coord2d lowerLeft(bbox.minx(), bbox.miny());
+  coord2d upperRight(bbox.maxx(), bbox.maxy());
   if (projection == Projection::EPSG3857) {
     return box2d<double>(forward(lowerLeft), forward(upperRight));
   } else {
@@ -72,7 +76,7 @@ box2d<double> SphericalMercator::convert(const box2d<double>& bbox, const Projec
 }
 
 coord2d SphericalMercator::forward(const coord2d& coordinateWGS) {
-  coord2d coordinate3857 = coord2d(
+  coord2d coordinate3857(
     A * coordinateWGS.x * D2R,
     A * log(tan((M_PI * 0.25) + (0.5 * coordinateWGS.y * D2R)))
   );

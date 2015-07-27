@@ -2,3 +2,4 @@
 build
 bin/tileserver
 xcode
+.DS_STORE
