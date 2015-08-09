@@ -25,11 +25,14 @@ class SphericalMercator {
   
     mapnik::coord2d forward(const mapnik::coord2d& coordinateWGS);
     mapnik::coord2d inverse(const mapnik::coord2d& coordinate3857);
+  
+    double tileSize();
+    std::string proj4();
 
+  private:
     double tileSize_;
     std::string proj4_;
-    
-  private:
+  
     std::vector<double> Bc_;
     std::vector<double> Cc_;
     std::vector<double> zc_;

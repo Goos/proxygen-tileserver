@@ -2,12 +2,11 @@
 
 namespace tileserver {
 
-BasicGeometryFeatureset::BasicGeometryFeatureset(std::vector<mapnik::feature_ptr> const& features):
+BasicGeometryFeatureset::BasicGeometryFeatureset(std::vector<mapnik::feature_ptr> features):
   features_(features),
   iterator_(features_.begin()),
   end_(features_.end())
 {
-  
 }
 
 BasicGeometryFeatureset::~BasicGeometryFeatureset() {

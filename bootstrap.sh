@@ -70,7 +70,7 @@ if [ ! -f "/usr/local/lib/libproxygenlib.a" ]; then
   git clone https://github.com/facebook/proxygen.git proxygen
   cd proxygen/proxygen
   git checkout v0.28.0
-  BOOST_ROOT=/usr/local/boost_1_57_0 ./deps.sh && ./reinstall.sh
+  BOOST_ROOT=/usr/local/boost_1_58_0 ./deps.sh && ./reinstall.sh
 fi
 
 # R3 (routing)

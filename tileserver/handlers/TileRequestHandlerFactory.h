@@ -24,7 +24,6 @@ class TileRequestHandlerFactory : public RoutableHandlerFactory {
   
   protected:
     folly::ThreadLocalPtr<SphericalMercator> mercator_;
-    folly::ThreadLocalPtr<mapnik::Map> map_;
     folly::wangle::CPUThreadPoolExecutor renderingPool_;
     folly::wangle::IOThreadPoolExecutor ioPool_;
 };

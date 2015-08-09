@@ -96,4 +96,12 @@ coord2d SphericalMercator::inverse(const coord2d& coordinate3857) {
   );
 }
 
+double SphericalMercator::tileSize() {
+  return tileSize_;
+}
+
+std::string SphericalMercator::proj4() {
+  return proj4_;
+}
+
 }

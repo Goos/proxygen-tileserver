@@ -23,32 +23,34 @@ TileRequestHandlerFactory::~TileRequestHandlerFactory() {
 
 void TileRequestHandlerFactory::onServerStart() noexcept {
   mercator_.reset(new SphericalMercator(256));
-  map_.reset(new mapnik::Map(256, 256, mercator_.get()->proj4_));
 }
 
 void TileRequestHandlerFactory::onServerStop() noexcept {
   mercator_.reset();
-  map_.reset();
 }
 
-
 RequestHandler* TileRequestHandlerFactory::onRequest(RequestHandler* handler, proxygen::HTTPMessage* message) noexcept {
-  auto bbox = mercator_.get()->bbox(0, 0, 0, Projection::EPSG3857);
-  return new TileRequestHandler(bbox, &renderingPool_, &ioPool_);
+  return handler;
 }
 
 RequestHandler* TileRequestHandlerFactory::onRoutedRequest(RequestHandler* defaultHandler, HTTPMessage* message, std::map<std::string, std::string> args) noexcept {
   auto xStr = args["x"].c_str();
   auto yStr = args["y"].c_str();
   auto zoomStr = args["z"].c_str();
+  if (!xStr || !yStr || !zoomStr) {
+    return defaultHandler;
+  }
+  
   double x = atof(xStr);
   double y = atof(yStr);
   double zoom = atof(zoomStr);
   
   auto bbox = mercator_.get()->bbox(x, y, zoom, Projection::EPSG3857);
-  auto request = TileRequest(bbox);
+  auto map = new mapnik::Map(256, 256, mercator_.get()->proj4());
+  map->zoom_to_box(bbox);
+  auto request = TileRequest(bbox, 256.0, 1.0, "png", args);
   
-  return new TileRequestHandler(bbox, &renderingPool_, &ioPool_);
+  return new TileRequestHandler(map, &renderingPool_, &ioPool_);
 }
 
 }

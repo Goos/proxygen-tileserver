@@ -31,17 +31,21 @@ BasicGeometryDatasource::~BasicGeometryDatasource() {
 void BasicGeometryDatasource::setGeometries(GeometryVector const& geometries) {
   int featureId = 0;
   auto context = std::make_shared<mapnik::context_type>();
+  std::vector<ItemType> pairs;
+  std::size_t idx = 0;
   for (auto &geom : geometries) {
     FeaturePtr feature(mapnik::feature_factory::create(context, featureId++));
     feature->set_geometry_copy(geom);
     features_.push_back(feature);
-    extent_.expand_to_include(feature->envelope());
-    //rTree_->insert(shape);
+    auto bbox = feature->envelope();
+    extent_.expand_to_include(bbox);
+    pairs.push_back(ItemType(bbox, idx));
+    idx++;
   }
   
-  //featureIndex_ = std::unique_ptr(new SpatialIndexType())
+  featureIndex_ = std::unique_ptr<SpatialIndexType>(new SpatialIndexType(pairs));
 }
-    
+
 mapnik::datasource::datasource_t BasicGeometryDatasource::type() const {
   return type_;
 }
@@ -68,14 +72,19 @@ mapnik::featureset_ptr BasicGeometryDatasource::features(mapnik::query const& q)
     std::deque<ItemType> matches;
     std::vector<mapnik::feature_ptr> features;
   
+    // Querying the spatial index for features that are within the
+    // given bounding-box.
     featureIndex_->query(boost::geometry::index::intersects(bbox), std::back_inserter(matches));
-    std::transform(matches.begin(), matches.end(), features.begin(), [this](ItemType match) {
+    
+    // The spatial index only stores the indices to the features rather
+    // than the features themselves, so we're mapping the indices to
+    // the features from the feature vector.
+    std::transform(matches.begin(), matches.end(), std::back_inserter(features), [this](ItemType match) {
       auto idx = match.second;
-      auto feature = features_[idx];
-      return feature;
+      return features_[idx];
     });
     
-    return std::make_shared<BasicGeometryFeatureset>(std::move(features));
+    return std::make_shared<BasicGeometryFeatureset>(features);
   } else {
     return mapnik::featureset_ptr();
   }
