@@ -45,6 +45,8 @@ void TileRequestHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcep
     auto bbox = map_->get_current_extent();
     auto center = bbox.center();
     
+    /* Temporarily filling the datasource with some arbitrary test-data 
+       in order to test the datasource. */
     std::vector<mapnik::geometry::geometry<double>> geoms;
     std::default_random_engine re;
     std::uniform_real_distribution<double> unifx(bbox.minx(), bbox.maxx());
